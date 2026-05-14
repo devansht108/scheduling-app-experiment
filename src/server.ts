@@ -26,6 +26,10 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok", message: "Scheduling app running" });
 });
 
+app.get("/client", (_req, res) => {
+  res.sendFile(path.join(__dirname, "../public/client.html"));
+});
+
 // Socket.IO
 setIO(io);
 
@@ -36,7 +40,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 if (require.main === module) {
   server.listen(PORT, () => {
@@ -46,7 +50,9 @@ if (require.main === module) {
     console.log(`\n📋 Steps to complete setup:`);
     console.log(`   1. Run ngrok: ngrok http ${PORT}`);
     console.log(`   2. Copy ngrok URL`);
-    console.log(`   3. POST /api/setup-vapi with { "ngrokUrl": "https://xxx.ngrok.io" }`);
+    console.log(
+      `   3. POST /api/setup-vapi with { "ngrokUrl": "https://xxx.ngrok.io" }`,
+    );
     console.log(`   4. Open http://localhost:${PORT} for dashboard\n`);
   });
 }

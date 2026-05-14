@@ -1,6 +1,7 @@
 import { google } from "googleapis";
 import * as fs from "fs";
 import * as path from "path";
+import { getIO } from "../config/socket";
 
 const CREDENTIALS_PATH = path.join(process.cwd(), "credentials.json");
 const TOKEN_PATH = path.join(process.cwd(), "token.json");
@@ -248,12 +249,16 @@ export const checkAvailability = async (
       minute: "2-digit",
     });
 
-    if (isAvailable) {
-      return {
-        available: true,
-        message: `${formattedDate} at ${formattedTime} is available for ${durationMinutes} minutes.`,
-      };
-    }
+   getIO().emit("activity", {
+  message: `Availability checked for ${formattedDate} at ${formattedTime}`,
+});
+
+if (isAvailable) {
+  return {
+    available: true,
+    message: `${formattedDate} at ${formattedTime} is available for ${durationMinutes} minutes.`,
+  };
+}
 
     return {
       available: false,
@@ -406,11 +411,15 @@ Duration: ${durationMinutes} minutes`,
       minute: "2-digit",
     });
 
-    return {
-      success: true,
-      message: `Your reservation for ${customerName} is confirmed on ${formattedDate} at ${formattedTime} for ${durationMinutes} minutes.`,
-      eventId: event.data.id || undefined,
-    };
+   getIO().emit("activity", {
+  message: `${customerName} booked a reservation for ${formattedDate} at ${formattedTime}`,
+});
+
+return {
+  success: true,
+  message: `Your reservation for ${customerName} is confirmed on ${formattedDate} at ${formattedTime} for ${durationMinutes} minutes.`,
+  eventId: event.data.id || undefined,
+};
   } catch (error: any) {
     console.error("Booking error:", error.response?.data || error.message);
 
@@ -486,10 +495,14 @@ export const cancelReservation = async (
       eventId: matchingEvent.id,
     });
 
-    return {
-      success: true,
-      message: `The reservation for ${customerName} on ${date} has been cancelled.`,
-    };
+    getIO().emit("activity", {
+  message: `${customerName}'s reservation was cancelled`,
+});
+
+return {
+  success: true,
+  message: `The reservation for ${customerName} on ${date} has been cancelled.`,
+};
   } catch (error: any) {
     console.error("Cancellation error:", error.response?.data || error.message);
 
@@ -610,10 +623,14 @@ export const rescheduleReservation = async (
       },
     });
 
-    return {
-      success: true,
-      message: `The reservation for ${customerName} has been successfully rescheduled to ${newDate} at ${newTime}.`,
-    };
+    getIO().emit("activity", {
+  message: `${customerName} rescheduled reservation to ${newDate} at ${newTime}`,
+});
+
+return {
+  success: true,
+  message: `The reservation for ${customerName} has been successfully rescheduled to ${newDate} at ${newTime}.`,
+};
   } catch (error: any) {
     console.error("Reschedule error:", error.response?.data || error.message);
 

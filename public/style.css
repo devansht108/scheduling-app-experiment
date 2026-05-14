@@ -1,0 +1,43 @@
+body {
+  margin: 0;
+  background: #031133;
+  font-family: Arial, sans-serif;
+  color: white;
+}
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h1 {
+  font-size: 64px;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  margin-bottom: 30px;
+  opacity: 0.8;
+}
+
+button {
+  padding: 18px 36px;
+  border: none;
+  border-radius: 14px;
+  background: #18c5b5;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+#status {
+  margin-top: 25px;
+  font-size: 18px;
+}

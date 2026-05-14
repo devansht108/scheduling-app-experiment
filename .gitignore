@@ -9,3 +9,11 @@ token.json
 credentials.json
 
 .DS_Store
+
+.parcel-cache
+build
+.vscode
+.idea
+Thumbs.db
+*.tsbuildinfo
+npm-debug.log*
