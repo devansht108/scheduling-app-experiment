@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("Cancel Reservation API Flow", async ({ request }) => {
   const response = await request.post(
-    "http://localhost:3000/api/vapi/tool-call",
+    "http://localhost:3001/api/vapi/tool-call",
     {
       data: {
         action: "cancel_reservation",
@@ -21,7 +21,7 @@ test("Cancel Reservation API Flow", async ({ request }) => {
 
 test("Reject Cancellation Of Non Existing Reservation", async ({ request }) => {
   const response = await request.post(
-    "http://localhost:3000/api/vapi/tool-call",
+    "http://localhost:3001/api/vapi/tool-call",
     {
       data: {
         action: "cancel_reservation",

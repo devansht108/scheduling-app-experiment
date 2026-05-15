@@ -8,13 +8,13 @@ export default defineConfig({
   workers: 1,
 
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:3001",
     headless: false,
   },
 
   webServer: {
     command: "npm run dev",
-    port: 3000,
+    port: 3001,
     reuseExistingServer: true,
   },
 });

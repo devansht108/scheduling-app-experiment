@@ -1,41 +1,619 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wellness Bistro — Reserve a Table</title>
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-  <title>Wellness Bistro</title>
+  <style>
+    :root {
+      --bg:        #04101f;
+      --surface:   #071828;
+      --border:    #0e2a3f;
+      --teal:      #18c5b5;
+      --teal-dim:  rgba(24,197,181,0.12);
+      --teal-glow: rgba(24,197,181,0.25);
+      --gold:      #c9a96e;
+      --gold-dim:  rgba(201,169,110,0.12);
+      --text:      #e8eff5;
+      --muted:     #4a7a8a;
+      --success:   #34d399;
+      --warning:   #fbbf24;
+      --error:     #f87171;
+    }
 
-  <link rel="stylesheet" href="style.css" />
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Ambient background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%,   rgba(24,197,181,0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 50% at 20% 80%,  rgba(24,197,181,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 60%,  rgba(201,169,110,0.03) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 36px 20px 60px;
+    }
+
+    /* ── Header ── */
+    header {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 56px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--text);
+    }
+
+    .brand-tagline {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .connection-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      transition: border-color 0.3s, color 0.3s;
+    }
+
+    .connection-pill.connected {
+      border-color: rgba(52,211,153,0.3);
+      color: var(--success);
+    }
+
+    .conn-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s;
+    }
+
+    .connection-pill.connected .conn-dot {
+      background: var(--success);
+      animation: blink 2s infinite;
+    }
+
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.3; }
+    }
+
+    /* ── Hero voice section ── */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 60px;
+      text-align: center;
+    }
+
+    .orb-wrap {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin-bottom: 32px;
+    }
+
+    /* ripple rings behind button */
+    .orb-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid var(--teal);
+      opacity: 0;
+      animation: none;
+    }
+
+    .orb-ring-1 { animation: ripple 2.4s ease-out 0s infinite; }
+    .orb-ring-2 { animation: ripple 2.4s ease-out 0.8s infinite; }
+    .orb-ring-3 { animation: ripple 2.4s ease-out 1.6s infinite; }
+
+    /* only animate rings when call is active */
+    .orb-wrap:not(.active) .orb-ring {
+      animation: none !important;
+    }
+
+    @keyframes ripple {
+      0%   { transform: scale(1);    opacity: 0.5; }
+      100% { transform: scale(1.9);  opacity: 0; }
+    }
+
+    #startBtn {
+      position: relative;
+      z-index: 2;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: none;
+      background: radial-gradient(circle at 35% 35%, #1de8d6, #0f9d8f);
+      box-shadow:
+        0 0 0 1px rgba(24,197,181,0.2),
+        0 8px 32px rgba(24,197,181,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.12);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.25s, box-shadow 0.25s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    #startBtn:hover {
+      transform: scale(1.04);
+      box-shadow:
+        0 0 0 1px rgba(24,197,181,0.35),
+        0 12px 40px rgba(24,197,181,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+
+    #startBtn:active {
+      transform: scale(0.97);
+    }
+
+    #startBtn:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+      transform: none;
+    }
+
+    .btn-icon {
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .btn-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(0,0,0,0.7);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* pulsing glow while active */
+    #startBtn.active-call {
+      background: radial-gradient(circle at 35% 35%, #f87171, #dc2626);
+      box-shadow:
+        0 0 0 1px rgba(248,113,113,0.3),
+        0 8px 32px rgba(248,113,113,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.12);
+      animation: breathe 1.8s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%,100% { box-shadow: 0 0 0 1px rgba(248,113,113,0.3), 0 8px 32px rgba(248,113,113,0.4), inset 0 1px 0 rgba(255,255,255,0.12); }
+      50%      { box-shadow: 0 0 0 1px rgba(248,113,113,0.5), 0 16px 50px rgba(248,113,113,0.6), inset 0 1px 0 rgba(255,255,255,0.15); }
+    }
+
+    #status {
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      font-family: 'DM Mono', monospace;
+      transition: color 0.3s;
+    }
+
+    #status.online  { color: var(--success); }
+    #status.calling { color: var(--teal); }
+    #status.error   { color: var(--error); }
+
+    .hero-hint {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 300px;
+      line-height: 1.6;
+    }
+
+    /* ── Divider ── */
+    .section-divider {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider-label {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      white-space: nowrap;
+    }
+
+    /* ── Event feed ── */
+    .feed-wrap {
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .feed {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .feed::-webkit-scrollbar { width: 4px; }
+    .feed::-webkit-scrollbar-track { background: transparent; }
+    .feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .feed-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 13px;
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      line-height: 1.8;
+    }
+
+    .feed-empty .empty-icon { font-size: 28px; margin-bottom: 8px; }
+
+    .event-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      animation: slideDown 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .event-card.type-confirmed {
+      border-color: rgba(52,211,153,0.2);
+      background: linear-gradient(135deg, rgba(52,211,153,0.04), var(--surface));
+    }
+
+    .event-card.type-cancelled {
+      border-color: rgba(248,113,113,0.2);
+      background: linear-gradient(135deg, rgba(248,113,113,0.04), var(--surface));
+    }
+
+    .event-card.type-rescheduled {
+      border-color: rgba(24,197,181,0.2);
+      background: linear-gradient(135deg, rgba(24,197,181,0.04), var(--surface));
+    }
+
+    .event-card.type-availability {
+      border-color: rgba(201,169,110,0.15);
+      background: linear-gradient(135deg, rgba(201,169,110,0.03), var(--surface));
+    }
+
+    .event-pip {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .pip-confirmed   { background: rgba(52,211,153,0.12); }
+    .pip-cancelled   { background: rgba(248,113,113,0.12); }
+    .pip-rescheduled { background: rgba(24,197,181,0.12); }
+    .pip-availability{ background: rgba(201,169,110,0.10); }
+
+    .event-body { flex: 1; min-width: 0; }
+
+    .event-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .event-detail {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      line-height: 1.6;
+    }
+
+    .event-time {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── Toast ── */
+    #toastContainer {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 13px 16px;
+      min-width: 240px;
+      max-width: 320px;
+      animation: toastIn 0.3s cubic-bezier(0.16,1,0.3,1);
+      pointer-events: all;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px) scale(0.95); }
+      to   { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    .toast.success { border-color: rgba(52,211,153,0.35); }
+    .toast.info    { border-color: rgba(24,197,181,0.3); }
+    .toast.warn    { border-color: rgba(251,191,36,0.3); }
+    .toast.error   { border-color: rgba(248,113,113,0.3); }
+
+    .toast-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .toast-body {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── Responsiveness ── */
+    @media (max-width: 480px) {
+      .orb-wrap { width: 150px; height: 150px; }
+      #startBtn { width: 150px; height: 150px; }
+      .btn-icon { font-size: 28px; }
+      .brand-name { font-size: 22px; }
+    }
+  </style>
 </head>
 
 <body>
 
-  <div class="container">
+<div class="page">
 
-    <h1>Wellness Bistro</h1>
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-name">Wellness Bistro</div>
+      <div class="brand-tagline">AI Voice Reservation</div>
+    </div>
+    <div class="connection-pill" id="connPill">
+      <div class="conn-dot"></div>
+      <span id="connLabel">Connecting…</span>
+    </div>
+  </header>
 
-    <p class="subtitle">
-      AI Voice Reservation Assistant
-    </p>
+  <!-- Voice hero -->
+  <div class="hero">
+    <div class="orb-wrap" id="orbWrap">
+      <div class="orb-ring orb-ring-1"></div>
+      <div class="orb-ring orb-ring-2"></div>
+      <div class="orb-ring orb-ring-3"></div>
 
-    <button id="startBtn">
-      Start Voice Assistant
-    </button>
-
-    <div id="status">
-      Assistant Offline
+      <button id="startBtn">
+        <span class="btn-icon" id="btnIcon">🎙</span>
+        <span class="btn-label" id="btnLabel">Talk to Riley</span>
+      </button>
     </div>
 
+    <div id="status">Tap to start</div>
+    <p class="hero-hint">
+      Riley can book a table, check availability,<br>or update an existing reservation.
+    </p>
   </div>
 
-  <script type="module" src="./app.js"></script>
+  <!-- Live activity feed -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">Reservation Activity</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="feed-wrap">
+    <div class="feed" id="feed">
+      <div class="feed-empty">
+        <div class="empty-icon">🕰</div>
+        Reservation updates will appear here<br>as Riley processes your requests.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast container -->
+<div id="toastContainer"></div>
+
+<!-- Socket.IO -->
+<script src="/socket.io/socket.io.js"></script>
+
+<!-- Socket event feed logic -->
+<script>
+  const connPill  = document.getElementById("connPill");
+  const connLabel = document.getElementById("connLabel");
+  const feed      = document.getElementById("feed");
+
+  const socket = io();
+
+  socket.on("connect", () => {
+    connPill.classList.add("connected");
+    connLabel.textContent = "Live";
+  });
+
+  socket.on("disconnect", () => {
+    connPill.classList.remove("connected");
+    connLabel.textContent = "Disconnected";
+  });
+
+  // ── booking_created ──
+  socket.on("booking_created", (d) => {
+    addEvent({
+      type:    "confirmed",
+      icon:    "✅",
+      pip:     "pip-confirmed",
+      title:   `Reservation confirmed — ${d.customerName}`,
+      detail:  `${d.date} at ${d.time}  ·  ${d.purpose || "Restaurant Reservation"}`,
+      time:    d.timestamp,
+    });
+    toast("success", "Booking Confirmed", `${d.customerName} · ${d.date} at ${d.time}`);
+  });
+
+  // ── availability_checked ──
+  socket.on("availability_checked", (d) => {
+    const avail = d.available;
+    addEvent({
+      type:   "availability",
+      icon:   avail ? "🟢" : "🔴",
+      pip:    "pip-availability",
+      title:  `Availability — ${avail ? "Open" : "Unavailable"}`,
+      detail: `${d.date} at ${d.time}`,
+      time:   d.timestamp,
+    });
+  });
+
+  // ── reservation_cancelled ──
+  socket.on("reservation_cancelled", (d) => {
+    addEvent({
+      type:   "cancelled",
+      icon:   "❌",
+      pip:    "pip-cancelled",
+      title:  `Reservation cancelled — ${d.customerName}`,
+      detail: `Originally on ${d.date}`,
+      time:   d.timestamp,
+    });
+    toast("warn", "Reservation Cancelled", `${d.customerName}'s reservation has been removed`);
+  });
+
+  // ── reservation_rescheduled ──
+  socket.on("reservation_rescheduled", (d) => {
+    addEvent({
+      type:   "rescheduled",
+      icon:   "🔄",
+      pip:    "pip-rescheduled",
+      title:  `Reservation rescheduled — ${d.customerName}`,
+      detail: `${d.oldDate}  →  ${d.newDate} at ${d.newTime}`,
+      time:   d.timestamp,
+    });
+    toast("success", "Reservation Moved", `${d.customerName} → ${d.newDate} at ${d.newTime}`);
+  });
+
+  function addEvent({ type, icon, pip, title, detail, time }) {
+    const empty = feed.querySelector(".feed-empty");
+    if (empty) empty.remove();
+
+    const card = document.createElement("div");
+    card.className = `event-card type-${type}`;
+    card.innerHTML = `
+      <div class="event-pip ${pip}">${icon}</div>
+      <div class="event-body">
+        <div class="event-title">${title}</div>
+        <div class="event-detail">${detail}</div>
+      </div>
+      <div class="event-time">${fmtTime(time)}</div>
+    `;
+    feed.prepend(card);
+  }
+
+  function fmtTime(ts) {
+    return new Date(ts).toLocaleTimeString("en-US", {
+      hour: "numeric", minute: "2-digit", second: "2-digit",
+    });
+  }
+
+  function toast(type, title, body) {
+    const el = document.createElement("div");
+    el.className = `toast ${type}`;
+    el.innerHTML = `
+      <div class="toast-title">${title}</div>
+      <div class="toast-body">${body}</div>
+    `;
+    document.getElementById("toastContainer").appendChild(el);
+    setTimeout(() => el.remove(), 4200);
+  }
+</script>
+
+<!-- VAPI voice logic (bundled by esbuild) -->
+<script src="./bundle.js"></script>
 
 </body>
-
 </html>

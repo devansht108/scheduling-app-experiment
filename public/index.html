@@ -131,42 +131,6 @@
       }
     }
 
-    .setup-panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 22px;
-      margin-bottom: 22px;
-    }
-
-    .setup-title {
-      font-size: 15px;
-      color: var(--accent2);
-      margin-bottom: 16px;
-      font-weight: 600;
-    }
-
-    .input-group {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 12px 14px;
-      border-radius: 12px;
-      outline: none;
-      font-size: 13px;
-      font-family: 'DM Mono', monospace;
-    }
-
-    input[type="text"]:focus {
-      border-color: var(--accent2);
-    }
 
     button {
       border: none;
@@ -459,32 +423,6 @@
     </div>
   </header>
 
-  <div class="setup-panel">
-    <div class="setup-title">
-      ⚡ VAPI Setup — Connect your ngrok URL
-    </div>
-
-    <div class="input-group">
-      <input
-        type="text"
-        id="ngrokUrl"
-        placeholder="https://xxxx.ngrok-free.app"
-      />
-
-      <button onclick="setupVapi()">
-        Connect VAPI
-      </button>
-
-      <button class="btn-secondary" onclick="loadBookings()">
-        Refresh
-      </button>
-    </div>
-
-    <div
-      id="setupStatus"
-      style="font-size:12px; color: var(--muted); font-family:'DM Mono', monospace;"
-    ></div>
-  </div>
 
   <div class="stats-grid">
 
@@ -809,69 +747,6 @@
         "info",
         "Booking Load Failed",
         "Could not refresh upcoming bookings"
-      );
-    }
-  }
-
-  async function setupVapi() {
-    const ngrokUrl =
-      document.getElementById("ngrokUrl").value.trim();
-
-    if (!ngrokUrl) {
-      document.getElementById("setupStatus").textContent =
-        "❌ Please enter ngrok URL";
-
-      return;
-    }
-
-    if (
-      !ngrokUrl.startsWith("https://") ||
-      !ngrokUrl.includes("ngrok")
-    ) {
-      document.getElementById("setupStatus").textContent =
-        "❌ Please enter a valid ngrok URL";
-
-      return;
-    }
-
-    document.getElementById("setupStatus").textContent =
-      "⏳ Setting up VAPI assistant...";
-
-    try {
-      const res = await fetch("/api/setup-vapi", {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({ ngrokUrl }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        document.getElementById("setupStatus").textContent =
-          `✅ VAPI Assistant created: ${data.assistant.name} (ID: ${data.assistant.id})`;
-
-        showToast(
-          "success",
-          "VAPI Connected!",
-          "Assistant ready for calls"
-        );
-      } else {
-        document.getElementById("setupStatus").textContent =
-          "❌ Failed to setup VAPI";
-      }
-
-    } catch (err) {
-      document.getElementById("setupStatus").textContent =
-        "❌ Failed to setup VAPI";
-
-      showToast(
-        "info",
-        "Setup Failed",
-        "Could not connect VAPI assistant"
       );
     }
   }

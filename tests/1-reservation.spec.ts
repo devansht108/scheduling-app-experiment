@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("Book Reservation API Flow", async ({ request }) => {
   const response = await request.post(
-    "http://localhost:3000/api/vapi/tool-call",
+    "http://localhost:3001/api/vapi/tool-call",
     {
       data: {
         date: "23 February 2027",
@@ -24,7 +24,7 @@ test("Book Reservation API Flow", async ({ request }) => {
 });
 
 test("Reject Duplicate Reservation", async ({ request }) => {
-  await request.post("http://localhost:3000/api/vapi/tool-call", {
+  await request.post("http://localhost:3001/api/vapi/tool-call", {
     data: {
       date: "24 February 2027",
       time: "8 PM",
@@ -35,7 +35,7 @@ test("Reject Duplicate Reservation", async ({ request }) => {
   });
 
   const duplicateResponse = await request.post(
-    "http://localhost:3000/api/vapi/tool-call",
+    "http://localhost:3001/api/vapi/tool-call",
     {
       data: {
         date: "24 February 2027",
@@ -58,7 +58,7 @@ test("Reject Duplicate Reservation", async ({ request }) => {
 
 test("Reject Reservation Outside Business Hours", async ({ request }) => {
   const response = await request.post(
-    "http://localhost:3000/api/vapi/tool-call",
+    "http://localhost:3001/api/vapi/tool-call",
     {
       data: {
         date: "25 February 2027",
